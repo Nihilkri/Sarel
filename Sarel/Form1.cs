@@ -62,40 +62,46 @@ public partial class Form1 : Form {
 		gb.DrawString(fx.ToString() + ", " + fx2.ToString(), Font, Brushes.White, 0, 20);
 		gb.DrawString(wx[1].ToString(), Font, Brushes.White, 0, 40);
 
-		double[] gx = new double[2] { 4.0, -4.0,};
-		double[] gy = new double[2] { 0.0, 0.0,};
-		double[] gm = new double[2] { 50.0, -50.0,};
-		Complex p = new Complex(0, 0), d = new Complex(0, 0);
-		double px = 0.0, py = 0.0;
-		for(int y = 0 ; y < fy ; y++) {	py = (fy2 - y) / 64.0;
-			for(int x = 0 ; x < fx ; x++) {	px = (x - fx2) / 64.0;
-				p.abi(0.0, 0.0);
-				for(int q = 0 ; q < gx.GetLength(0) ; q++) {
-					d = new Complex(gx[q] - px, gy[q]- py);
-					//p = d;
-					//p += Complex.Cis(Physics.Fg(1.0, gm[q], d.r), d.t);
-					p += Complex.Cis(0.5*gm[q] / d.r, d.t);
-					//p += Complex.Cis(d.r, d.t);
+		{
+			double skl = 1.0 / 8.0;
+			double[] gx = new double[] { -256.0, 256.0, 0.0 };
+			double[] gy = new double[] { 0.0, 0.0, 256.0 };
+			double[] gm = new double[] { -512.0 , -512.0, 512.0 };
+			for(int q = 0 ; q < gx.GetLength(0) ; q++) { gx[q] *= skl; gy[q] *= skl; gm[q] *= skl*skl*skl; }
+			Complex p = new Complex(0, 0), d = new Complex(0, 0);
+			double px = 0.0, py = 0.0;
+			for(int y = 0 ; y < fy ; y++) {	py = (fy2 - y) * skl;
+				for(int x = 0 ; x < fx ; x++) { px = (x - fx2) * skl;
+				if(x > fx - 128 && y < 128) { p.abi((x + 64.0 - fx) / 64.0, (64.0 - y) / 64.0); } else {
+					p.abi(0.0, -1.0);
+					for(int q = 0 ; q < gx.GetLength(0) ; q++) {//
+						d = new Complex(gx[q] - px, gy[q] - py);
+						//p = d;
+						//p += Complex.Cis(Physics.Fg(1.0, gm[q], d.r), d.t);
+						p += Complex.Cis(32.0 * (px != 0 ? 16.0 : 1.0) * gm[q] / d.r / d.r, d.t);
+						//p += Complex.Cis(d.t, 32.0 * (px > 0 ? 4.0 : 1.0) * gm[q] / d.r / d.r);
+						//p += Complex.Cis(d.r, d.t);
+					}
 				}
 					//p.abi(px, py);
-					//p /= 64.0;
-				gi.SetPixel(x, y, Color.FromArgb(p.c));
+					//p.abi(Math.Sin(py), Math.Sin(px));
+					gi.SetPixel(x, y, Color.FromArgb(p.c));
 
+				}
 			}
+			gb.DrawLine(Pens.Black, 0, fy2, fx, fy2);
+			gb.DrawLine(Pens.Black, fx2, 0, fx2, fy);
 		}
-		gb.DrawLine(Pens.Black, 0, fy2, fx, fy2);
-		gb.DrawLine(Pens.Black, fx2, 0, fx2, fy);
 
-
-		// rb, rg, gb
-		int skl = 16;
-		for(int r = 0 ; r < 256 ; r += skl)
-		for(int g = 0 ; g < 256 ; g += skl)
-		for(int b = 0 ; b < 256 ; b += skl)
-			gb.FillRectangle(new SolidBrush(Color.FromArgb(r, g, b)),
-			0, 0, 16, 16);
-		//r g 0, r g 80, r g b	0 g b, 80 g b	r 0 b, r 80 b
-
+		//{// rb, rg, gb
+		//	int skl = 16;
+		//	for(int r = 0 ; r < 256 ; r += skl)
+		//		for(int g = 0 ; g < 256 ; g += skl)
+		//			for(int b = 0 ; b < 256 ; b += skl)
+		//				gb.FillRectangle(new SolidBrush(Color.FromArgb(r, g, b)),
+		//				0, 0, 16, 16);
+		//	//r g 0, r g 80, r g b	0 g b, 80 g b	r 0 b, r 80 b
+		//}
 		//WavePaint();
 		wx[0] += 5; for(int q = 0 ; q < wx[0] && q < 361 ; q++)
 			gb.DrawArc(Pens.White, 250, 250, 500, 500, 0, q);
@@ -161,4 +167,8 @@ public class Sarel {
 
 
 } // class Sarel
+public class VField {
+
+
+}
 } // Namespace Sarel

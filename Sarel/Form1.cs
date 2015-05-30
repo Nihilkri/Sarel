@@ -33,7 +33,6 @@ public partial class Form1 : Form {
 	#endregion Graphics
 	static string hx = "FFFFFFFF";
 	static uint hxn = Convert.ToUInt32(hx, 16);
-	static Mat matest; static Matrix2 kntest; static double madet;
 	#endregion Variables
 
 	public Form1() {InitializeComponent();}
@@ -62,24 +61,6 @@ public partial class Form1 : Form {
 		gb.DrawString(hxn.ToString(), Font, Brushes.White, 0, 0);
 		gb.DrawString(fx.ToString() + ", " + fx2.ToString(), Font, Brushes.White, 0, 20);
 		gb.DrawString(x[1].ToString(), Font, Brushes.White, 0, 40);
-
-		double[,] d = { { 2, 1, -2, -1 }, { 1, -1, -1, 1 }, { 4, 2, 2, 1 }, { 8, 1, 1, 2 } };
-		matest = new Mat(d); madet = matest.det();
-		gb.DrawString("Det                       = " + madet.ToString(), Font, Brushes.White, 0, 80);
-		gb.DrawString("(" + matest[0, 0] + ", " + matest[0, 1] + ", " + matest[0, 2] + ", " + matest[0, 3] + ")", Font, Brushes.White, 20, 59);
-		gb.DrawString("(" + matest[1, 0] + ", " + matest[1, 1] + ", " + matest[1, 2] + ", " + matest[1, 3] + ")", Font, Brushes.White, 20, 73);
-		gb.DrawString("(" + matest[2, 0] + ", " + matest[2, 1] + ", " + matest[2, 2] + ", " + matest[2, 3] + ")", Font, Brushes.White, 20, 87);
-		gb.DrawString("(" + matest[3, 0] + ", " + matest[3, 1] + ", " + matest[3, 2] + ", " + matest[3, 3] + ")", Font, Brushes.White, 20, 101);
-
-		double[][] dd = {   new double[] { 2, 1, -2, -1 }, new double[] { 1, -1, -1, 1 }, 
-							new double[] { 4, 2, 2, 1 }, new double[] { 8, 1, 1, 2 } };
-		kntest = (new Matrix2(5, 5, 2, 1, -2, -1, 2, 1, -1, -1, 1, 4, 4, 2, 2, 1, 8, 8, 1, 1, 2, 10, 1, 3, 5, 7, 9));
-		madet = kntest.det();
-		gb.DrawString("Det                       = " + madet.ToString(), Font, Brushes.White, 0, 160);
-		gb.DrawString("(" + kntest[0, 0] + ", " + kntest[1, 0] + ", " + kntest[2, 0] + ", " + kntest[3, 0] + ")", Font, Brushes.White, 20, 139);
-		gb.DrawString("(" + kntest[0, 1] + ", " + kntest[1, 1] + ", " + kntest[2, 1] + ", " + kntest[3, 1] + ")", Font, Brushes.White, 20, 153);
-		gb.DrawString("(" + kntest[0, 2] + ", " + kntest[1, 2] + ", " + kntest[2, 2] + ", " + kntest[3, 2] + ")", Font, Brushes.White, 20, 167);
-		gb.DrawString("(" + kntest[0, 3] + ", " + kntest[1, 3] + ", " + kntest[2, 3] + ", " + kntest[3, 3] + ")", Font, Brushes.White, 20, 181);
 
 		// rb, rg, gb
 		int skl = 16;
@@ -148,35 +129,6 @@ public class V4 {
 	public V4 norm() { double m = mag(); return new V4(w / m, x / m, y / m, z / m); }
 	public override string ToString() { return "(" + w + ", " + x + ", " + y + ", " + z + ")"; }
 } // class V4
-public class Mat {
-	private double[,] dat;
-	private int sizey, sizex;
-	public double this[int y, int x] { get { return dat[y, x]; } set { dat[y, x] = value; } }
-	public Mat(int sizexy) : this(sizexy, sizexy) { }
-	public Mat(int nsizey, int nsizex) {
-		sizey = (nsizey < 1) ? 1 : nsizey; sizex = (nsizex < 1) ? 1 : nsizex; dat = new double[sizey, sizex];
-		for(int y = 0 ; y < sizey ; y++) for(int x = 0 ; x < sizex ; x++) dat[y, x] = 0.0;
-	}
-	public Mat(double[,] d) {
-		sizey = d.GetLength(0); sizex = d.GetLength(1); dat = new double[sizey, sizex];
-		for(int y = 0 ; y < sizey ; y++) for(int x = 0 ; x < sizex ; x++) dat[y, x] = d[y, x];
-	}
-
-	public double det() {
-		double d = 0, dr = 0, dl = 0;
-		for(int x = 0 ; x < sizex - (sizex == 2 ? 1 : 0) ; x++) {
-			dr = dl = 1;
-			for(int y = 0 ; y < sizey ; y++) {
-				dr *= dat[y, (x + y) % sizex]; dl *= dat[sizey - 1 - y, (x + y) % sizex];
-			}
-			d += dr - dl;
-		}
-		return d;
-	}
-
-
-
-}
 public class Sarel {
 	private V3 v; public double m;
 	public Sarel(V3 nv, double nm) { v = nv; m = nm; }

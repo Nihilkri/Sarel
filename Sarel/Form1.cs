@@ -30,6 +30,7 @@ public partial class Form1 : Form {
 	static Graphics gb,gf; static Bitmap gi;
 	static int fx, fy, fx2, fy2;
 	static V3 cam = new V3(0,0,0);
+	static Bitmap Kii;
 	#endregion Graphics
 	static string hx = "FFFFFFFF";
 	static uint hxn = Convert.ToUInt32(hx, 16);
@@ -62,36 +63,60 @@ public partial class Form1 : Form {
 		gb.DrawString(fx.ToString() + ", " + fx2.ToString(), Font, Brushes.White, 0, 20);
 		gb.DrawString(wx[1].ToString(), Font, Brushes.White, 0, 40);
 
-		{
-			double skl = 1.0 / 8.0;
-			double[] gx = new double[] { -256.0, 256.0, 0.0 };
-			double[] gy = new double[] { 0.0, 0.0, 256.0 };
-			double[] gm = new double[] { -512.0 , -512.0, 512.0 };
-			for(int q = 0 ; q < gx.GetLength(0) ; q++) { gx[q] *= skl; gy[q] *= skl; gm[q] *= skl*skl*skl; }
-			Complex p = new Complex(0, 0), d = new Complex(0, 0);
-			double px = 0.0, py = 0.0;
-			for(int y = 0 ; y < fy ; y++) {	py = (fy2 - y) * skl;
-				for(int x = 0 ; x < fx ; x++) { px = (x - fx2) * skl;
-				if(x > fx - 128 && y < 128) { p.abi((x + 64.0 - fx) / 64.0, (64.0 - y) / 64.0); } else {
-					p.abi(0.0, -1.0);
-					for(int q = 0 ; q < gx.GetLength(0) ; q++) {//
-						d = new Complex(gx[q] - px, gy[q] - py);
-						//p = d;
-						//p += Complex.Cis(Physics.Fg(1.0, gm[q], d.r), d.t);
-						p += Complex.Cis(32.0 * (px != 0 ? 16.0 : 1.0) * gm[q] / d.r / d.r, d.t);
-						//p += Complex.Cis(d.t, 32.0 * (px > 0 ? 4.0 : 1.0) * gm[q] / d.r / d.r);
-						//p += Complex.Cis(d.r, d.t);
-					}
+		VField vf = new VField(fx, fy);
+		Kii = new Bitmap(128, 128);
+		//if(x > fx - 128 && y < 128) { p.abi((x + 64.0 - fx) / 64.0, (64.0 - y) / 64.0); } else {
+		Complex p = new Complex(0, 0), d = new Complex(0, 0);
+		double px = 0.0, py = 0.0;
+		for(int x = 0 ; x < 128 ; x++) { for(int y = 0 ; y < 128 ; y++) {
+			p.abi((x - 64.0) / 64.0, (64.0 - y) / 64.0);
+			Kii.SetPixel(x, y, Color.FromArgb(p.c));
+		}}
+		double skl = 1.0 / 8.0;
+		//double[] gx = new double[] { -256.0, 256.0, 0.0, 0.0 };
+		//double[] gy = new double[] { 0.0, 0.0, 256.0, -256.0 };
+		//double[] gm = new double[] { 512.0, 512.0, 128.0, -512.0 };
+		double[] gx = new double[] { 0.0, 0.0 };
+		double[] gy = new double[] { 0.0, 0.0 };
+		double[] gm = new double[] { 0.0, 512.0 };
+		for(int q = 0 ; q < gx.GetLength(0) ; q++) { gx[q] *= skl; gy[q] *= skl; gm[q] *= skl * skl * skl; }
+		for(int y = 0 ; y < fy ; y++) { py = (fy2 - y) * skl;
+			for(int x = 0 ; x < fx ; x++) { px = (x - fx2) * skl;
+				p.abi(0.0, -0.0);
+				for(int q = 0 ; q < gx.GetLength(0) ; q++) {//
+					d = new Complex(gx[q] - px, gy[q] - py);
+					//p = d;
+					//p += Complex.Cis(Physics.Fg(1.0, gm[q], d.r), d.t);
+					p += Complex.Cis(512.0 * skl * (px != 0 ? 16.0 : 1.0) * gm[q] / d.r / d.r, d.t);
+					//p += Complex.Cis(d.t, 32.0 * (px > 0 ? 4.0 : 1.0) * gm[q] / d.r / d.r);
+					//p += Complex.Cis(d.r, d.t);
 				}
-					//p.abi(px, py);
-					//p.abi(Math.Sin(py), Math.Sin(px));
-					gi.SetPixel(x, y, Color.FromArgb(p.c));
+				//p.abi(px, py);
+				//p.abi(Math.Sin(py), Math.Sin(px));
+				vf._VF[x, y] = new Complex(p.a, p.b);
+				gi.SetPixel(x, y, Color.FromArgb(p.c));// ^ ~0x7FFFFFFF
 
-				}
 			}
-			gb.DrawLine(Pens.Black, 0, fy2, fx, fy2);
-			gb.DrawLine(Pens.Black, fx2, 0, fx2, fy);
 		}
+		gb.DrawLine(Pens.Black, 0, fy2, fx, fy2);
+		gb.DrawLine(Pens.Black, fx2, 0, fx2, fy);
+
+		p.abi(-32.0, -32.0); Complex v = new Complex(-0.2, 0.2); int opx = 0, opy = 0;
+		px = (p.a / skl) + fx2; py = fy2 - (p.b / skl);
+		for(int q = 0 ; q < 1000 ; q++) {
+			opx = (int)px; opy = (int)py; 
+			px = (p.a / skl) + fx2; py = fy2 - (p.b / skl);
+			if(!(new Rectangle(0, 0, fx, fy).Contains((int)px, (int)py))) continue;
+			d = vf._VF[(int)px, (int)py];
+			if(d.r > 16.0) d *= -1.0;
+			v += d / 256.0;
+			p += v;
+
+			//gi.SetPixel((int)px, (int)py, Color.FromArgb(v.c));
+			gb.FillEllipse(Brushes.Black, (int)px - 2, (int)py - 2, 5, 5);
+			gb.DrawLine(new Pen(Color.FromArgb((-1.5*v.norm()).c)), opx, opy, (int)px, (int)py);
+		}
+
 
 		//{// rb, rg, gb
 		//	int skl = 16;
@@ -108,7 +133,9 @@ public partial class Form1 : Form {
 
 		gb.DrawString("Test:\n" + KN.Test(), Font, Brushes.White, 20, 220);
 
-		gf.DrawImage(gi, 0, 0); timer1.Stop();
+		gf.DrawImage(gi, 0, 0);
+		gf.DrawImage(Kii, fx - 128, 0);
+		timer1.Stop();
 	}
 
 	private void timer1_Tick(object sender, EventArgs e) {
@@ -135,6 +162,10 @@ public partial class Form1 : Form {
 
 		}
 
+
+	}
+
+	private void Form1_MouseMove(object sender, MouseEventArgs e) {
 
 	}
 } // class Form1
@@ -168,6 +199,10 @@ public class Sarel {
 
 } // class Sarel
 public class VField {
+	public Complex[,] _VF;
+	public VField() { }
+	public VField(int nx, int ny) { _VF = new Complex[nx, ny]; }
+	public VField(double nx, double ny, double sk) { _VF = new Complex[(int)(2 * nx / sk), (int)(2 * ny / sk)]; }
 
 
 }

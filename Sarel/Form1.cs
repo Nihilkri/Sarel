@@ -55,12 +55,37 @@ public partial class Form1 : Form {
 	}
 
 	static Pen[] ps = { Pens.White, Pens.Red, Pens.Orange, Pens.Yellow, Pens.Green, Pens.Blue, Pens.Violet };
-	static double[] x = new double[ps.Length], y = new double[ps.Length], oy = new double[ps.Length], wl = new double[ps.Length];
+	static double[] wx = new double[ps.Length], wy = new double[ps.Length], woy = new double[ps.Length], wwl = new double[ps.Length];
 	private void Form1_Paint(object sender, PaintEventArgs e) {
 		gb.Clear(Color.Black);
 		gb.DrawString(hxn.ToString(), Font, Brushes.White, 0, 0);
 		gb.DrawString(fx.ToString() + ", " + fx2.ToString(), Font, Brushes.White, 0, 20);
-		gb.DrawString(x[1].ToString(), Font, Brushes.White, 0, 40);
+		gb.DrawString(wx[1].ToString(), Font, Brushes.White, 0, 40);
+
+		double[] gx = new double[2] { 4.0, -4.0,};
+		double[] gy = new double[2] { 0.0, 0.0,};
+		double[] gm = new double[2] { 50.0, -50.0,};
+		Complex p = new Complex(0, 0), d = new Complex(0, 0);
+		double px = 0.0, py = 0.0;
+		for(int y = 0 ; y < fy ; y++) {	py = (fy2 - y) / 64.0;
+			for(int x = 0 ; x < fx ; x++) {	px = (x - fx2) / 64.0;
+				p.abi(0.0, 0.0);
+				for(int q = 0 ; q < gx.GetLength(0) ; q++) {
+					d = new Complex(gx[q] - px, gy[q]- py);
+					//p = d;
+					//p += Complex.Cis(Physics.Fg(1.0, gm[q], d.r), d.t);
+					p += Complex.Cis(0.5*gm[q] / d.r, d.t);
+					//p += Complex.Cis(d.r, d.t);
+				}
+					//p.abi(px, py);
+					//p /= 64.0;
+				gi.SetPixel(x, y, Color.FromArgb(p.c));
+
+			}
+		}
+		gb.DrawLine(Pens.Black, 0, fy2, fx, fy2);
+		gb.DrawLine(Pens.Black, fx2, 0, fx2, fy);
+
 
 		// rb, rg, gb
 		int skl = 16;
@@ -72,7 +97,7 @@ public partial class Form1 : Form {
 		//r g 0, r g 80, r g b	0 g b, 80 g b	r 0 b, r 80 b
 
 		//WavePaint();
-		x[0] += 5; for(int q = 0 ; q < x[0] && q < 361 ; q++)
+		wx[0] += 5; for(int q = 0 ; q < wx[0] && q < 361 ; q++)
 			gb.DrawArc(Pens.White, 250, 250, 500, 500, 0, q);
 
 		gb.DrawString("Test:\n" + KN.Test(), Font, Brushes.White, 20, 220);
@@ -88,18 +113,18 @@ public partial class Form1 : Form {
 
 	private void WavePaint() {
 		for(int q = 1 ; q < fx ; q++) {
-			gb.DrawLine(Pens.Gray, q - 1, (int)(fy2), q, (int)(fy2)); y[0] = 0;
+			gb.DrawLine(Pens.Gray, q - 1, (int)(fy2), q, (int)(fy2)); wy[0] = 0;
 			for(int w = 1 ; w < ps.Length ; w++) {
 				//wl[w] = 1 << w;
-				wl[w] = w*8;
-				y[w] = Math.Sin(q * PI / fx2 * wl[w] + x[w]) * (512/wl[w]); y[0] += y[w];
-				gb.DrawLine(ps[w], q - 1, (int)(fy2 - oy[w]), q, (int)(fy2 - y[w]));
-				oy[w] = y[w];
+				wwl[w] = w*8;
+				wy[w] = Math.Sin(q * PI / fx2 * wwl[w] + wx[w]) * (512/wwl[w]); wy[0] += wy[w];
+				gb.DrawLine(ps[w], q - 1, (int)(fy2 - woy[w]), q, (int)(fy2 - wy[w]));
+				woy[w] = wy[w];
 
 
 			}
-			gb.DrawLine(ps[0], q - 1, (int)(fy2 - oy[0]), q, (int)(fy2 - y[0]));
-			oy[0] = y[0];
+			gb.DrawLine(ps[0], q - 1, (int)(fy2 - woy[0]), q, (int)(fy2 - wy[0]));
+			woy[0] = wy[0];
 
 
 		}

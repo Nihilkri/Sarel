@@ -72,50 +72,55 @@ public partial class Form1 : Form {
 			p.abi((x - 64.0) / 64.0, (64.0 - y) / 64.0);
 			Kii.SetPixel(x, y, Color.FromArgb(p.c));
 		}}
-		double skl = 1.0 / 8.0;
+		//double skl = 1.0;// / 8.0;
 		//double[] gx = new double[] { -256.0, 256.0, 0.0, 0.0 };
 		//double[] gy = new double[] { 0.0, 0.0, 256.0, -256.0 };
 		//double[] gm = new double[] { 512.0, 512.0, 128.0, -512.0 };
 		double[] gx = new double[] { 0.0, 0.0 };
 		double[] gy = new double[] { 0.0, 0.0 };
-		double[] gm = new double[] { 0.0, 512.0 };
-		for(int q = 0 ; q < gx.GetLength(0) ; q++) { gx[q] *= skl; gy[q] *= skl; gm[q] *= skl * skl * skl; }
-		for(int y = 0 ; y < fy ; y++) { py = (fy2 - y) * skl;
-			for(int x = 0 ; x < fx ; x++) { px = (x - fx2) * skl;
+		double[] gm = new double[] { 0.0, 32768.0 };
+		//for(int q = 0 ; q < gx.GetLength(0) ; q++) { gx[q] *= skl; gy[q] *= skl; gm[q] *= skl * skl * skl; }
+		for(int y = 0 ; y < fy ; y++) {
+			py = (fy2 - y);// *skl;
+			for(int x = 0 ; x < fx ; x++) {
+				px = (x - fx2);// *skl;
 				p.abi(0.0, -0.0);
 				for(int q = 0 ; q < gx.GetLength(0) ; q++) {//
 					d = new Complex(gx[q] - px, gy[q] - py);
 					//p = d;
 					//p += Complex.Cis(Physics.Fg(1.0, gm[q], d.r), d.t);
-					p += Complex.Cis(512.0 * skl * (px != 0 ? 16.0 : 1.0) * gm[q] / d.r / d.r, d.t);
+					p += Complex.Cis(1.0 * gm[q] / d.r / d.r, d.t);
 					//p += Complex.Cis(d.t, 32.0 * (px > 0 ? 4.0 : 1.0) * gm[q] / d.r / d.r);
 					//p += Complex.Cis(d.r, d.t);
 				}
 				//p.abi(px, py);
 				//p.abi(Math.Sin(py), Math.Sin(px));
 				vf._VF[x, y] = new Complex(p.a, p.b);
-				gi.SetPixel(x, y, Color.FromArgb(p.c));// ^ ~0x7FFFFFFF
+				gi.SetPixel(x, y, Color.FromArgb((p * 1.0 * (px > 0 ? 1.0 : 1.0)).c));// ^ ~0x7FFFFFFF
 
 			}
 		}
 		gb.DrawLine(Pens.Black, 0, fy2, fx, fy2);
 		gb.DrawLine(Pens.Black, fx2, 0, fx2, fy);
 
-		p.abi(-32.0, -32.0); Complex v = new Complex(-0.2, 0.2); int opx = 0, opy = 0;
-		px = (p.a / skl) + fx2; py = fy2 - (p.b / skl);
-		for(int q = 0 ; q < 1000 ; q++) {
+		px = 0.0; for(int q = 0 ; q < 1024 ; q++) { py = (fy2 - q); if(vf._VF[512, q].r > 0.5) break; }
+		p.abi(px, py); Complex v = new Complex(11.55, 0.0); int opx = 0, opy = 0;
+		px = p.a + fx2; py = fy2 - p.b;
+		for(int q = 0 ; q < 65536 ; q++) {
 			opx = (int)px; opy = (int)py; 
-			px = (p.a / skl) + fx2; py = fy2 - (p.b / skl);
+			px = p.a + fx2; py = fy2 - p.b;
 			if(!(new Rectangle(0, 0, fx, fy).Contains((int)px, (int)py))) continue;
 			d = vf._VF[(int)px, (int)py];
-			if(d.r > 16.0) d *= -1.0;
-			v += d / 256.0;
-			p += v;
+			if(d.r > 8.0) d *= -1.0;
+			v += d / 16.0;
+			p += v / 16.0;
 
 			//gi.SetPixel((int)px, (int)py, Color.FromArgb(v.c));
-			gb.FillEllipse(Brushes.Black, (int)px - 2, (int)py - 2, 5, 5);
-			gb.DrawLine(new Pen(Color.FromArgb((-1.5*v.norm()).c)), opx, opy, (int)px, (int)py);
+			//gb.FillEllipse(Brushes.Black, (int)px - 2, (int)py - 2, 5, 5);
+			//gb.FillEllipse(Brushes.White, (int)px - 1, (int)py - 1, 3, 3);
+			gb.DrawLine(q<4096?Pens.Red:new Pen(Color.FromArgb((1.0 * v.norm()).c)), opx, opy, (int)px, (int)py);
 		}
+		//gb.DrawEllipse(Pens.White, -32.0*Math.Sqrt(2.0))
 
 
 		//{// rb, rg, gb

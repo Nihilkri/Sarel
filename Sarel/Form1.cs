@@ -75,7 +75,7 @@ public partial class Form1 : Form {
 		//double skl = 1.0;// / 8.0;
 		//double[] gx = new double[] { -256.0, 256.0, 0.0, 0.0 };
 		//double[] gy = new double[] { 0.0, 0.0, 256.0, -256.0 };
-		//double[] gm = new double[] { 512.0, 512.0, 128.0, -512.0 };
+		//double[] gm = new double[] { 32768.0, 32768.0, 8192.0, -32768.0 };
 		double[] gx = new double[] { 0.0, 0.0 };
 		double[] gy = new double[] { 0.0, 0.0 };
 		double[] gm = new double[] { 0.0, 32768.0 };

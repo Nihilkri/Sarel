@@ -69,7 +69,7 @@ public partial class Form1 : Form {
 		Complex p = new Complex(0, 0), d = new Complex(0, 0);
 		double px = 0.0, py = 0.0;
 		for(int x = 0 ; x < 128 ; x++) { for(int y = 0 ; y < 128 ; y++) {
-			p.abi((x - 64.0) / 64.0, (64.0 - y) / 64.0);
+			p.abi((x - 64.0) / 64.0, (64.0 - y) / 64.0, true);
 			Kii.SetPixel(x, y, Color.FromArgb(p.c));
 		}}
 		//double skl = 1.0;// / 8.0;
